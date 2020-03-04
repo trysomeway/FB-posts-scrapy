@@ -19,35 +19,6 @@ def read_file(file_name):
     inp.close()
     return read_file
 
-# def run_webdriver():
-    # # options = Options()
-
-    # options = webdriver.FirefoxOptions()
-    # # options.headless = True
-    # #witout notification
-    # options.set_preference("dom.push.enabled", False)
-    # driver = webdriver.FirefoxOptions(firefox_options=options)
-    # return driver
-
-# def login_in_fb(usr, pwd):
-    # driver.get("https://www.facebook.com/")
-    # sleep(3)
-
-    # username_box = driver.find_element_by_id('email')
-    # username_box.send_keys(usr)
-    # sleep(3)
-
-    # password_box = driver.find_element_by_id('pass')
-    # password_box.send_keys(pwd)
-    # sleep(3)
-    # try:
-        # login_box = driver.find_element_by_id('loginbutton')
-        # login_box.click()
-    # except:
-        # login_box = driver.find_element_by_name('login')
-        # login_box.click()
-    # sleep(5)
-
 def login_in_fb(usr, pwd):
     driver.get("https://m.facebook.com/login.php?refsrc=https%3A%2F%2Fm.facebook.com%2F&refid=8")
     sleep(3)
@@ -70,8 +41,6 @@ def find_img_alt_text(soup_tree):
 
     for match in soup_tree("form", {"class": "commentable_item"}):
         match.decompose()
-
-    # soup_tree.form.decompose()
 
     alt_text = soup_tree.find_all("img")
 
@@ -96,19 +65,8 @@ def chek_for_new_post(mobile_link):
     sleep(5)
     
     soup = BeautifulSoup(html_source, 'html.parser')
-
-    # doc = html.fromstring(bytes(html_source, encoding='utf8'))
-    # doc = html.fromstring(html_source)
-    # doc = html.document_fromstring(html_source)
-    # doc = document_fromstring(html_source)
     watch_els = []
     
-    # soup = soup.find_all(text='Full Story')
-    
-    # a_xpath = doc.xpath("//a[@href][contains(text(), 'Full Story')]")
-    # print(str(a_xpath))
-    #take id of posts in page and check for newest
-
     for a in soup.find_all('a', href=True, text='Full Story'):
         datax = a["href"]
         print(datax)
@@ -143,68 +101,6 @@ def chek_for_new_post(mobile_link):
                     return watch_els
                 else:
                     return watch_els
-                    
-# def chek_for_new_post_new(mobile_link):
-    # driver.get(mobile_link)
-    # sleep(5)
-
-    # html_source = driver.page_source
-    # sleep(5)
-    
-    # soup = BeautifulSoup(html_source, 'html.parser')
-    # driver.execute_script(
-        # "window.scrollTo(0, document.body.scrollHeight);")
-
-    # # doc = html.fromstring(bytes(html_source, encoding='utf8'))
-    # # doc = html.fromstring(html_source)
-    # # doc = html.document_fromstring(html_source)
-    # # doc = document_fromstring(html_source)
-    # watch_els = []
-    
-    # # soup = soup.find_all(text='Full Story')
-    
-    # # a_xpath = doc.xpath("//a[@href][contains(text(), 'Full Story')]")
-    # # print(str(a_xpath))
-    # #take id of posts in page and check for newest
-    # search_posts = soup_tree.find_all("div", {"data-testid": "story-subtitle"})
-
-    # find("a")["href"]
-    # wdiv
-    # div data-testid="story-subtitle"
-    # for a in soup.find_all('a', href=True, text='Full Story'):
-        # datax = a["href"]
-        # print(datax)
-        # print(str(a))
-        # datax = regex.search(r"(\d\d\d\d+)", datax)
-        # # datax = re.search(r"story_fbid.(\d+)", datax)
-        # post_id = int(datax.group(0))
-        # if post_id > last_post:
-            # watch_els.append(post_id)
-
-        # elif post_id > last_post:
-            # return watch_els
-
-    # #pres see more and continue loop for check
-    # while watch_els[-1] > last_post:
-        # elem = driver.find_element_by_partial_link_text("See More Stories")
-        # elem.click()
-        # sleep(3)
-        # html_source = driver.page_source
-        # sleep(5)
-        # doc = html.fromstring(bytes(html_source, encoding='utf8'))
-        # a_xpath = doc.xpath("//a")
-        # for a in a_xpath:
-            # if a.text_content() == "Full Story":
-                # datax = a.get("href")
-                # datax = regex.search(r"(\d\d\d\d+)", datax)
-                # # datax = re.search(r"story_fbid.(\d+)", datax)
-                # post_id = int(datax.group(0))
-                # if post_id > last_post:
-                    # watch_els.append(post_id)
-                # elif post_id > last_post:
-                    # return watch_els
-                # else:
-                    # return watch_els
 
 def refresh_last_post_id():
     #scrabe post by link with commenst
@@ -214,7 +110,6 @@ def refresh_last_post_id():
                 out.write(str(watch_els[0]))
             out.close()
 
-# def translate_text(text_for_translate, detect_text):
 def translate_text(text_for_translate):
     translator = Translator()
 
@@ -246,12 +141,6 @@ def detect_lang_and_sent_to_translate(what):
         "ru" : "rus",
         "pl" : "pol"
         }
-    # what_detect = []
-    # for item in what:
-        # someitem = regex.sub('[^\p{posix_punct}\w\s]', '', item)
-        # what_detect.append(someitem)
-    # what = ''.join(what_detect)
-    #clean for non textual sybols
     rege = regex.compile('[^\.\?\!,\)\(;:\w\s]')
     # rege = regex.compile('[^\p{posix_punct}\w\s]')
     what = rege.sub('', what)
@@ -275,7 +164,6 @@ def detect_lang_and_sent_to_translate(what):
                 detect_text = re.sub(item, dict_lang_code_change[item], detect_text, re.S)
             taged_text = '<p lang="' + detect_text + '">' + what + '</p>' + '\r\n'
         else:
-            # what = translate_text(what, detect_text)
             what = translate_text(what)
             taged_text = '<p lang="' + 'rus' + '">' + what + '</p>' + '\r\n'
 
@@ -305,9 +193,6 @@ def chek_for_autor(where, name='Myroslava'):
 
         for match in autor("form", {"class": "commentable_item"}):
             match.decompose()
-
-
-        # autor.form.decompose()
         for match in autor("span", {"class": "timestampContent"}):
             match.decompose()
         for match in autor("div", {"rel": "theater"}):
@@ -321,33 +206,6 @@ def chek_for_autor(where, name='Myroslava'):
             return True
         else:
             return False
-
-# def get_article_text(data):
-    # soup_tree = BeautifulSoup(data, 'html.parser')
-    # chek_out_link = soup_tree.find("div", {"class": "_5pcr userContentWrapper"})
-
-    # for match in chek_out_link("form", {"class": "commentable_item"}):
-        # match.decompose()
-
-    # # chek_out_link.form.decompose()
-    # chek_out_link = chek_out_link.find("div", {"class": "lfloat _ohe"})
-    # if chek_out_link:
-        # chek_out_link = chek_out_link.find("a")["href"]
-        # if chek_out_link:
-            # find_video = re.search("youtube", chek_out_link)
-            # if not find_video:
-                # get_link = chek_out_link
-                # a = Article(get_link)
-                # a.download()
-                # a.parse()
-                # what = a.text
-                # content = detect_lang_and_sent_to_translate(what)
-                # sleep(5)
-                # content = '<p lang="' + 'rus' + '">' + "Ссылка на материал: " + '</p> ' + content
-                # return content
-    # content = ""
-    # return content
-
 
 def get_article_text(data):
     soup_tree = BeautifulSoup(data, 'html.parser')
@@ -477,7 +335,7 @@ def scrabe_posts(link):
         data = (driver.page_source)
         take_data_time_post_data = data
         soup_tree = (BeautifulSoup(data, 'html.parser'))
-        chek_a = chek_for_autor(soup_tree, 'Myroslava')
+        chek_a = chek_for_autor(soup_tree, name_of_need_autor)
 
         if chek_a == True:
             pass
@@ -524,10 +382,12 @@ def write_to_file(what, out_file_name = 'out.txt'):
 
 
 if __name__ == '__main__':
+    print("In your fb need  be english interface."
     your_login_fb = str(input("type your login for fb: \n"))
     your_password_to_fb = str(input("type your fb password: \n"))
     last_post = int(input("Type last seened POST ID. For example look to link of date time of post that you want stop searche: https://www.facebook.com/your_friends_page_id/posts/ID_OF_POST_THAT_YOU_NEED_TYPE: \n"))
     friend_fb_id = str(input("type your friends id. For example open web page of your friend: https://www.facebook.com/YOUR_FRIENDS_PAGE_ID_THAT_YOU_NEED_TYPE/: \n"))
+    name_of_need_autor = str(input("type your friends first name in fb")
     options = webdriver.FirefoxOptions()
     profile = webdriver.FirefoxProfile()
     
