@@ -382,12 +382,12 @@ def write_to_file(what, out_file_name = 'out.txt'):
 
 
 if __name__ == '__main__':
-    print("In your fb need  be english interface."
-    your_login_fb = str(input("type your login for fb: \n"))
+    print("In your fb need  be english interface.")
+    your_login_fb = str(input("type your login for fb:  \n"))
     your_password_to_fb = str(input("type your fb password: \n"))
     last_post = int(input("Type last seened POST ID. For example look to link of date time of post that you want stop searche: https://www.facebook.com/your_friends_page_id/posts/ID_OF_POST_THAT_YOU_NEED_TYPE: \n"))
     friend_fb_id = str(input("type your friends id. For example open web page of your friend: https://www.facebook.com/YOUR_FRIENDS_PAGE_ID_THAT_YOU_NEED_TYPE/: \n"))
-    name_of_need_autor = str(input("type your friends first name in fb")
+    name_of_need_autor = str(input("type your friends first name in fb \n"))
     options = webdriver.FirefoxOptions()
     profile = webdriver.FirefoxProfile()
     
