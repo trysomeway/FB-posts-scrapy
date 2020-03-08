@@ -382,15 +382,7 @@ def write_to_file(what, out_file_name = 'out.txt'):
 
 
 if __name__ == '__main__':
-    private = read_file("Private_data.txt")
-    private = read_file("Private_data.txt")
-    private = read_file("Private_data.txt")
-    private = read_file("Private_data.txt")
-    private = read_file("Private_data.txt")
-    private = read_file("Private_data.txt")
-    private = read_file("Private_data.txt")
-    private = read_file("Private_data.txt")
-    private = read_file("Private_data.txt")
+    # private = read_file("Private_data.txt")
     print("In your fb need  be english interface.")
     your_login_fb = str(input("type your login for fb:  \n"))
     your_password_to_fb = str(input("type your fb password: \n"))
