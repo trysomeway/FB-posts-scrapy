@@ -1,4 +1,3 @@
-# # # fdfe
 import googletrans
 from googletrans import Translator
 import sys
