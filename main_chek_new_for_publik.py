@@ -61,53 +61,45 @@ def chek_for_new_post(mobile_link):
     driver.get(mobile_link)
     sleep(5)
 
-    html_source = driver.page_source
-    sleep(5)
-    
-    soup = BeautifulSoup(html_source, 'html.parser')
     watch_els = []
     
-    for a in soup.find_all('a', href=True, text='Full Story'):
-        datax = a["href"]
-        print(datax)
-        print(str(a))
-        datax = regex.search(r"(\d\d\d\d+)", datax)
-        # datax = re.search(r"story_fbid.(\d+)", datax)
-        post_id = int(datax.group(0))
-        if post_id > last_post:
-            watch_els.append(post_id)
-
-        elif post_id <= last_post:
-            return watch_els
-
-    #pres see more and continue loop for check
-    while watch_els[-1] > last_post:
-        elem = driver.find_element_by_partial_link_text("See More Stories")
-        elem.click()
-        sleep(3)
+    while True:
         html_source = driver.page_source
         sleep(5)
-        doc = html.fromstring(bytes(html_source, encoding='utf8'))
-        a_xpath = doc.xpath("//a")
-        for a in a_xpath:
-            if a.text_content() == "Full Story":
-                datax = a.get("href")
-                datax = regex.search(r"(\d\d\d\d+)", datax)
-                # datax = re.search(r"story_fbid.(\d+)", datax)
-                post_id = int(datax.group(0))
-                if post_id > last_post:
-                    watch_els.append(post_id)
-                elif post_id <= last_post:
-                    return watch_els
-                else:
-                    return watch_els
+        
+        soup = BeautifulSoup(html_source, 'html.parser')
+
+        for match in soup("div", {"class": "mts"}):
+            if match:
+                match.decompose()
+
+        for body_post in soup.find_all("div", {"data-testid": "story-subtitle"}):
+            find_post = body_post.find("a")["href"]
+
+            print(find_post)
+
+            datax = find_post
+            print(datax)
+            datax = regex.search(r"(\d\d\d\d+)", datax)
+            post_id = int(datax.group(0))
+
+            if post_id > last_post:
+                watch_els.append(post_id)
+
+            else:
+                return watch_els
+
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        sleep(5)
+
+    return watch_els
 
 def refresh_last_post_id():
     #scrabe post by link with commenst
     if watch_els:
-        if int(watch_els[0]) > last_post:
+        if int(max(watch_els)) > last_post:
             with codecs.open('last_post.txt','w', "utf-8" ) as out:
-                out.write(str(watch_els[0]))
+                out.write(str(max(watch_els)))
             out.close()
 
 def translate_text(text_for_translate):
@@ -142,10 +134,8 @@ def detect_lang_and_sent_to_translate(what):
         "pl" : "pol"
         }
     rege = regex.compile('[^\.\?\!,\)\(;:\w\s]')
-    # rege = regex.compile('[^\p{posix_punct}\w\s]')
     what = rege.sub('', what)
     
-    # what = what_detect
 
     chek_what = re.search('\w\w\w\w', what)
     chek_for_detect = what
@@ -157,7 +147,6 @@ def detect_lang_and_sent_to_translate(what):
 
         detect_text = translator.detect(chek_for_detect)
         detect_text = detect_text.lang
-        # sleep(5)
 
         if detect_text == "ru" or detect_text == "uk" or detect_text == "pl":
             for item in dict_lang_code_change.keys():
@@ -187,7 +176,7 @@ def expand_comments():
         except:
             break
 
-def chek_for_autor(where, name='Myroslava'):
+def chek_for_autor(where, name_of_need_autor):
 
         autor = where.find("div", {"class": "_5pcr userContentWrapper"})
 
@@ -202,7 +191,7 @@ def chek_for_autor(where, name='Myroslava'):
         for match in autor("button"):
             match.decompose()
         chek_autor = str(autor.get_text())
-        if chek_autor.startswith(name, 0, 10) == True:
+        if chek_autor.startswith(name_of_need_autor, 0, 10) == True:
             return True
         else:
             return False
@@ -255,36 +244,12 @@ def scrabe_fb_comments(data):
     return comments
 
 def take_data_time_post(take_data_time_post_data):
-    translat_month = {
-        "10" : "октября",
-        "11" : "ноября",
-        "12" : "декабря",
-        "1" : "января",
-        "2" : "февраля",
-        "3" : "Марта",
-        "4" : "апреля",
-        "5" : "мая",
-        "6" : "июня",
-        "7" : "июля",
-        "8" : "августа",
-        "9" : "сентября"
-        }
     doc = document_fromstring(take_data_time_post_data)
     abbr_xpath = doc.xpath("//abbr[@title][@data-utime][@data-shorten][@class]")
-    # abbr_xpath = doc.xpath("//abbr[@title]")
     time_post = abbr_xpath[0].get("title")
-    time_post = re.search(r"(\d+)/(\d+)/(\d+), (\d+):\d+ (\w+)", time_post)
-    day = time_post.group(2)
-    month = str(time_post.group(1))
-    if time_post.group(5) == "AM":
-        evning = " дня "
-    if time_post.group(5) == "PM":
-        evning = " вечера "
-
-    for item in translat_month.keys():
-        change = "\b" + translat_month[item] + "\b"
-        month = re.sub(item, change, month, re.S)
-    time_post = "\r\n\r\n"+ '<p lang="rus">' + "Пост написано в " + str(time_post.group(4)) + evning + str(day) + " " + str(month) + " 20" + str(time_post.group(3)) + " года. " + '</p>'
+    time_post = detect_lang_and_sent_to_translate(time_post)
+    
+    time_post = "\r\n\r\n" + '<p lang="rus">' + "Пост написан в" + '</p>' + str(time_post) 
     return time_post
 
 def scrabe_text_of_post(data):
@@ -382,18 +347,26 @@ def write_to_file(what, out_file_name = 'out.txt'):
 
 
 if __name__ == '__main__':
-    # private = read_file("Private_data.txt")
-    print("In your fb need  be english interface.")
-    your_login_fb = str(input("type your login for fb:  \n"))
-    your_password_to_fb = str(input("type your fb password: \n"))
-    last_post = int(input("Type last seened POST ID. For example look to link of date time of post that you want stop searche: https://www.facebook.com/your_friends_page_id/posts/ID_OF_POST_THAT_YOU_NEED_TYPE: \n"))
-    friend_fb_id = str(input("type your friends id. For example open web page of your friend: https://www.facebook.com/YOUR_FRIENDS_PAGE_ID_THAT_YOU_NEED_TYPE/: \n"))
-    name_of_need_autor = str(input("type your friends first name in fb \n"))
+    try:
+        private = (read_file("Private_data.txt")).split("\n")
+        your_login_fb = private[0]
+        your_password_to_fb = private[1]
+        last_post = int(private[2])
+        friend_fb_id = private[3]
+        name_of_need_autor = private[4]
+    except:
+        print("In your fb need  be english interface.")
+        your_login_fb = str(input("type your login for fb:  \n"))
+        your_password_to_fb = str(input("type your fb password: \n"))
+        last_post = int(input("Type last seened POST ID. For example look to link of date time of post that you want stop searche: https://www.facebook.com/your_friends_page_id/posts/ID_OF_POST_THAT_YOU_NEED_TYPE: \n"))
+        friend_fb_id = str(input("type your friends id. For example open web page of your friend: https://www.facebook.com/YOUR_FRIENDS_PAGE_ID_THAT_YOU_NEED_TYPE/: \n"))
+        name_of_need_autor = str(input("type your friends first name in fb \n"))
+
     options = webdriver.FirefoxOptions()
     profile = webdriver.FirefoxProfile()
     
     # run browser inviseble
-    # options.headless = True
+    options.headless = True
     
     #witout notification
     options.set_preference("dom.push.enabled", False)
@@ -404,10 +377,10 @@ if __name__ == '__main__':
     driver = webdriver.Firefox(firefox_options=options, firefox_profile=profile)
     
     link = "https://www.facebook.com/" + friend_fb_id
-    mobile_link = "https://m.facebook.com/" + friend_fb_id
+    mobile_link = "https://www.facebook.com/" + friend_fb_id
 
     login_in_fb(your_login_fb, your_password_to_fb)
-    watch_els = chek_for_new_post(mobile_link)
+    watch_els = list(set(chek_for_new_post(mobile_link)))
 
     if watch_els:
         post_from_autor = scrabe_posts(link)
