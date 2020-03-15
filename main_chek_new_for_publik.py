@@ -384,7 +384,11 @@ def private_data():
             'your_password_to_fb' : your_password_to_fb, 
             'last_post' : last_post, 
             'friend_fb_id' : friend_fb_id, 
-            'name_of_need_autor' : name_of_need_autor
+            'name_of_need_autor' : name_of_need_autor,
+            'sender_email' : sender_email,
+            'receiver_email' : receiver_email,
+            'sender_email_password' : sender_email_password
+
         }
         if answer == "YES":
             with open("private_dict.pickle","wb") as out:
