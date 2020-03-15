@@ -400,6 +400,9 @@ def private_data():
     last_post = int(private_dict["last_post"])
     friend_fb_id = private_dict["friend_fb_id"]
     name_of_need_autor = private_dict["name_of_need_autor"]
+    sender_email = private_dict["sender_email"]
+    receiver_email = private_dict["receiver_email"]
+    sender_email_password = private_dict["sender_email_password"]
     return (your_login_fb, your_password_to_fb, last_post, friend_fb_id, name_of_need_autor, sender_email, receiver_email, sender_email_password)
 
 def sent_posts_by_email(scrabed_posts, sender_email, receiver_email, sender_email_password):
