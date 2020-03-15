@@ -78,10 +78,7 @@ def chek_for_new_post(mobile_link):
         for body_post in soup.find_all("div", {"data-testid": "story-subtitle"}):
             find_post = body_post.find("a")["href"]
 
-            print(find_post)
-
             datax = find_post
-            print(datax)
             datax = regex.search(r"(\d\d\d\d+)", datax)
             post_id = int(datax.group(0))
 
@@ -370,6 +367,16 @@ def private_data():
     
         friend_fb_id = str(input("type your friends id. For example open web page of your friend: https://www.facebook.com/YOUR_FRIENDS_PAGE_ID_THAT_YOU_NEED_TYPE/: \n"))
         name_of_need_autor = str(input("type your friends first name in fb \n"))
+        ask_about_sent_to_email = (input("Do you want sent from  your (gmail) to other email? Enter YES or NO \n")).upper()
+        if ask_about_sent_to_email == "YES":
+            sender_email = input("Enter your gmail adress\n")
+            receiver_email = input("Enter gmail adress to who\n")
+            sender_email_password = input("Enter your gmail password\n")
+        else:
+            sender_email = None
+            receiver_email = None
+            sender_email_password = None
+            
         answer = input("If you want save your private date to file enter YES or NO \n")
         answer = answer.upper()
         private_dict = {
@@ -389,10 +396,44 @@ def private_data():
     last_post = int(private_dict["last_post"])
     friend_fb_id = private_dict["friend_fb_id"]
     name_of_need_autor = private_dict["name_of_need_autor"]
-    return (your_login_fb, your_password_to_fb, last_post, friend_fb_id, name_of_need_autor)
+    return (your_login_fb, your_password_to_fb, last_post, friend_fb_id, name_of_need_autor, sender_email, receiver_email, sender_email_password)
+
+def sent_posts_by_email(scrabed_posts, sender_email, receiver_email, sender_email_password):
+    import smtplib, ssl
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    #create email_subject
+    email_subject = "Новые посты от" + name_of_need_autor
+
+    
+    message = MIMEMultipart("alternative")
+    message["Subject"] = email_subject
+    message["From"] = sender_email
+    message["To"] = receiver_email
+
+    # Create the plain-text and HTML version of your message
+    html = "<html><body>" + scrabed_posts + "</body></html>"
+
+    # Turn these into plain/html MIMEText objects
+    part1 = MIMEText(html, "html")
+
+    # Add HTML/plain-text parts to MIMEMultipart message
+    # The email client will try to render the last part first
+    message.attach(part1)
+
+    # Create secure connection with server and send email
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+        server.login(sender_email, sender_email_password)
+        server.sendmail(
+            sender_email, receiver_email, message.as_string()
+        )
+
 
 if __name__ == '__main__':
-    your_login_fb, your_password_to_fb, last_post, friend_fb_id, name_of_need_autor = private_data()
+    your_login_fb, your_password_to_fb, last_post, friend_fb_id, name_of_need_autor, sender_email, receiver_email, sender_email_password = private_data()
+    
     options = webdriver.FirefoxOptions()
     profile = webdriver.FirefoxProfile()
     
@@ -419,7 +460,11 @@ if __name__ == '__main__':
         if post_from_autor:
             write_to_file(post_from_autor)
             post_from_autor = read_file('out.txt')
-            print ("+++++++Sended+++++++++")
+            print ("+++++++Posts saved to out.txt+++++++++")
+
+            if sender_email and sender_email:
+                sent_posts_by_email(post_from_autor, sender_email, receiver_email, sender_email_password)
+                print ("+++++++Sended to email+++++++++")
         else:
             print ("-------------Not new posts---------------")
     else:
