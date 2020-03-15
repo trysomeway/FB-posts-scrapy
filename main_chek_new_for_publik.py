@@ -1,3 +1,5 @@
+import os.path
+import pickle
 import googletrans
 from googletrans import Translator
 import sys
@@ -95,12 +97,15 @@ def chek_for_new_post(mobile_link):
     return watch_els
 
 def refresh_last_post_id():
-    #scrabe post by link with commenst
-    if watch_els:
-        if int(max(watch_els)) > last_post:
-            with codecs.open('last_post.txt','w', "utf-8" ) as out:
-                out.write(str(max(watch_els)))
-            out.close()
+    if watch_els and os.path.isfile('private_dict.pickle'):
+        private_dict = open("private_dict.pickle", "rb")
+        private_dict = pickle.load(private_dict)
+        private_dict["last_post"] = int(max(watch_els))
+
+        with open("private_dict.pickle","wb") as out:
+            pickle.dump(private_dict,out)
+        out.close()
+
 
 def translate_text(text_for_translate):
     translator = Translator()
@@ -287,9 +292,9 @@ def scrabe_text_of_post(data):
         post = ""
     return post
 
+
 def scrabe_posts(link):
     posts_together = []
-    print(str(watch_els))
     for x in watch_els:
         link_post = link + "/posts/" + str(x)
         driver.get(link_post)
@@ -339,6 +344,7 @@ def scrabe_posts(link):
 
     return posts_together
 
+
 def write_to_file(what, out_file_name = 'out.txt'):
     with codecs.open(out_file_name, 'w',"utf-8") as out:
         for element in what:
@@ -346,22 +352,47 @@ def write_to_file(what, out_file_name = 'out.txt'):
     out.close()
 
 
-if __name__ == '__main__':
+
+def private_data():
     try:
-        private = (read_file("Private_data.txt")).split("\n")
-        your_login_fb = private[0]
-        your_password_to_fb = private[1]
-        last_post = int(private[2])
-        friend_fb_id = private[3]
-        name_of_need_autor = private[4]
+            private_dict = open("private_dict.pickle", "rb")
+            private_dict = pickle.load(private_dict)
     except:
         print("In your fb need  be english interface.")
         your_login_fb = str(input("type your login for fb:  \n"))
         your_password_to_fb = str(input("type your fb password: \n"))
-        last_post = int(input("Type last seened POST ID. For example look to link of date time of post that you want stop searche: https://www.facebook.com/your_friends_page_id/posts/ID_OF_POST_THAT_YOU_NEED_TYPE: \n"))
+        while True:
+            try:
+                last_post = int(input("Type last seened POST ID. For example look to link of date time of post that you want stop searche: https://www.facebook.com/your_friends_page_id/posts/ID_OF_POST_THAT_YOU_NEED_TYPE: \n"))
+                break
+            except:
+                print("Must be only numbers")
+    
         friend_fb_id = str(input("type your friends id. For example open web page of your friend: https://www.facebook.com/YOUR_FRIENDS_PAGE_ID_THAT_YOU_NEED_TYPE/: \n"))
         name_of_need_autor = str(input("type your friends first name in fb \n"))
+        answer = input("If you want save your private date to file enter YES or NO \n")
+        answer = answer.upper()
+        private_dict = {
+            'your_login_fb' : your_login_fb, 
+            'your_password_to_fb' : your_password_to_fb, 
+            'last_post' : last_post, 
+            'friend_fb_id' : friend_fb_id, 
+            'name_of_need_autor' : name_of_need_autor
+        }
+        if answer == "YES":
+            with open("private_dict.pickle","wb") as out:
+                pickle.dump(private_dict,out)
+                out.close()
+    
+    your_login_fb = private_dict["your_login_fb"]
+    your_password_to_fb = private_dict["your_password_to_fb"]
+    last_post = int(private_dict["last_post"])
+    friend_fb_id = private_dict["friend_fb_id"]
+    name_of_need_autor = private_dict["name_of_need_autor"]
+    return (your_login_fb, your_password_to_fb, last_post, friend_fb_id, name_of_need_autor)
 
+if __name__ == '__main__':
+    your_login_fb, your_password_to_fb, last_post, friend_fb_id, name_of_need_autor = private_data()
     options = webdriver.FirefoxOptions()
     profile = webdriver.FirefoxProfile()
     
